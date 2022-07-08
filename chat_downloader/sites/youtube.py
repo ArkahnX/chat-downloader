@@ -437,6 +437,8 @@ class YouTubeChatDownloader(BaseChatDownloader):
         'superchat': [
             # superchat messages which appear in chat
             'membership_item',
+            'sponsorships_gift_redemption_announcement',
+            'sponsorships_gift_purchase_announcement',
             'paid_message',
             'paid_sticker',
         ],
@@ -847,6 +849,7 @@ class YouTubeChatDownloader(BaseChatDownloader):
         'headerPrimaryText': r('header_primary_text', _parse_text),
         'headerSubtext': r('header_secondary_text', _parse_text),
         'sponsorPhoto': r('sponsor_icons', _parse_thumbnails),
+        'primaryText': r('primary_text', _parse_text),
 
         # ticker_paid_sticker_item
         'tickerThumbnails': r('ticker_icons', _parse_thumbnails),
@@ -936,6 +939,8 @@ class YouTubeChatDownloader(BaseChatDownloader):
         'addChatItemAction': [
             # message saying Live Chat replay is on
             'liveChatViewerEngagementMessageRenderer',
+            'liveChatSponsorshipsGiftRedemptionAnnouncementRenderer',
+            'liveChatSponsorshipsGiftPurchaseAnnouncementRenderer',
             'liveChatMembershipItemRenderer',
             'liveChatTextMessageRenderer',
             'liveChatPaidMessageRenderer',
@@ -979,7 +984,7 @@ class YouTubeChatDownloader(BaseChatDownloader):
         'addBannerToLiveChatCommand': [
             'liveChatBannerRenderer',
             'liveChatBannerHeaderRenderer',
-            'liveChatTextMessageRenderer',
+            'liveChatTextMessageRenderer'
         ]
     }
 
@@ -1722,6 +1727,14 @@ class YouTubeChatDownloader(BaseChatDownloader):
                         original_message_type = try_get_first_key(
                             original_item)
                         data = self._parse_item(original_item, data, offset)
+
+                        if try_get_first_key(original_item) == 'liveChatSponsorshipsGiftPurchaseAnnouncementRenderer':
+                            item_index = try_get_first_key(original_item)
+                            item_info = original_item.get(item_index)
+
+                            new_item = item_info.get('header')
+
+                            data = self._parse_item(new_item, data, offset)
 
                     elif original_action_type in self._KNOWN_REMOVE_ACTION_TYPES:
                         original_item = action
